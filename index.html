@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F7F3EC">
+  <title>Birthday Wish · 0917</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <!-- Decorative light and grain are made with CSS, without image downloads. -->
+  <div class="ambience" aria-hidden="true"><i></i><i></i><i></i></div>
+  <main>
+    <!-- 1. Opening: the seal is a real button, usable with Enter or Space. -->
+    <section class="screen opening" id="opening" aria-labelledby="opening-title">
+      <div class="opening-copy">
+        <p class="label date">SEPTEMBER 17, 2026</p>
+        <h1 id="opening-title">A little something saved for you.</h1>
+        <p class="quiet">Open when you're ready.</p>
+      </div>
+      <div class="envelope" id="envelope">
+        <div class="envelope-back"></div>
+        <div class="envelope-letter" aria-hidden="true"><span>0917</span><span>BIRTHDAY WISH</span></div>
+        <div class="envelope-front"></div>
+        <div class="envelope-flap"></div>
+        <button class="seal" id="open-button" aria-label="Open your birthday voucher" aria-controls="voucher-screen"><span aria-hidden="true">♡</span></button>
+      </div>
+    </section>
+
+    <!-- 2. Voucher: clocks use actual IANA time zones, including daylight saving. -->
+    <section class="screen voucher-screen" id="voucher-screen" aria-labelledby="voucher-title" hidden>
+      <aside class="clocks" aria-label="Current local times in China and New York">
+        <div><span>CHINA</span><time id="china-time">--:--</time></div>
+        <p id="time-apart">12 HOURS APART</p>
+        <div><span>NEW YORK</span><time id="new-york-time">--:--</time></div>
+      </aside>
+      <div class="voucher-group" id="voucher-group">
+        <article class="voucher">
+          <div class="voucher-body">
+            <header class="voucher-header"><p class="label">BIRTHDAY WISH VOUCHER</p><span class="issue-mark" aria-hidden="true">S.</span></header>
+            <div class="wish-heading">
+              <h2 id="voucher-title" tabindex="-1">ONE WISH</h2>
+              <p>of your choice</p>
+            </div>
+            <dl class="ticket-details">
+              <div><dt>VOUCHER NO.</dt><dd>0917</dd></div>
+              <div><dt>VALID</dt><dd>FOREVER</dd></div>
+              <div><dt>REDEEMABLE</dt><dd>IN PERSON ONLY</dd></div>
+              <div><dt>ISSUED</dt><dd>SEP 17, 2026</dd></div>
+            </dl>
+            <p class="voucher-note">No rush. No expiration.<br><span>Save it for whenever the right wish comes to mind.</span></p>
+          </div>
+          <footer class="ticket-stub">
+            <div class="stub-line"><span>reserved by S.</span><button class="secret-heart" id="secret-heart" aria-label="Heart" aria-haspopup="dialog"><span aria-hidden="true">♡</span></button></div>
+          </footer>
+        </article>
+        <button class="keep-button" id="keep-button">KEEP THIS WISH <span aria-hidden="true">♡</span></button>
+      </div>
+    </section>
+
+    <!-- 3. Reservation is its own calm pause before the ending. -->
+    <section class="screen reservation" id="reservation" aria-labelledby="reservation-title" hidden>
+      <div>
+        <span class="check" aria-hidden="true"></span>
+        <h2 class="label" id="reservation-title" tabindex="-1">WISH RESERVED</h2>
+        <p class="reservation-note">No need to decide today.</p>
+        <p class="redeem-message" id="redeem-message" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <!-- 4. Ending: intentionally no further action. -->
+    <section class="screen final-screen" id="final-screen" aria-labelledby="final-title" hidden>
+      <div class="final-copy">
+        <h2 id="final-title" tabindex="-1">Reserved for a future day.</h2>
+        <p>See you when<br><em>12 hours become 0.</em></p>
+        <span class="final-heart" aria-hidden="true">♡</span>
+      </div>
+      <time class="label final-date" datetime="2026-09-17">09.17.2026</time>
+    </section>
+    <noscript><p class="no-script">Please enable JavaScript to open your birthday voucher.</p></noscript>
+  </main>
+
+  <!-- Native dialog provides keyboard focus containment and Escape-to-close. -->
+  <dialog class="secret-modal" id="secret-modal" aria-labelledby="secret-title" aria-describedby="secret-message">
+    <button class="close-button" id="close-secret" aria-label="Close secret message" autofocus>×</button>
+    <div class="secret-rule" aria-hidden="true"></div>
+    <h2 id="secret-title">You found the secret message!</h2>
+    <p id="secret-message">Hope the next birthday can be spent together.</p>
+  </dialog>
+</body>
+</html>
