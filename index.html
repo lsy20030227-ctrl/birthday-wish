@@ -50,12 +50,27 @@
               <div><dt>ISSUED</dt><dd>SEP 17, 2026</dd></div>
             </dl>
             <p class="voucher-note">No rush. No expiration.<br><span>Save it for whenever the right wish comes to mind.</span></p>
+            <!-- Fine print inherits the voucher's colors and wraps on mobile. -->
+            <section class="voucher-terms" aria-labelledby="terms-title">
+              <h3 id="terms-title">TERMS &amp; CONDITIONS</h3>
+              <p>Valid indefinitely.<br>
+                Redeemable in person only.<br>
+                Transferable: absolutely not.<br>
+                Final interpretation rights reserved by S. ♡</p>
+            </section>
           </div>
-          <footer class="ticket-stub">
-            <div class="stub-line"><span>reserved by S.</span><button class="secret-heart" id="secret-heart" aria-label="Heart" aria-haspopup="dialog"><span aria-hidden="true">♡</span></button></div>
-          </footer>
+          <!-- Only the perforation button tears the independently moving stub. -->
+          <div class="stub-slot" id="stub-slot">
+            <button class="tear-line" id="tear-line" aria-label="Tear off ticket stub" aria-controls="ticket-stub"></button>
+            <footer class="ticket-stub" id="ticket-stub">
+              <div class="stub-line"><span>reserved by S.</span><button class="secret-heart" id="secret-heart" aria-label="Heart" aria-haspopup="dialog"><span aria-hidden="true">♡</span></button></div>
+            </footer>
+            <p class="tear-confirmation" id="tear-confirmation" role="status" aria-live="polite"></p>
+          </div>
         </article>
         <button class="keep-button" id="keep-button">KEEP THIS WISH <span aria-hidden="true">♡</span></button>
+        <!-- A temporary, non-interactive hint; its space never shifts the ticket. -->
+        <p class="heart-hint" id="heart-hint" aria-hidden="true">P.S. the heart on the voucher might be worth clicking.</p>
       </div>
     </section>
 

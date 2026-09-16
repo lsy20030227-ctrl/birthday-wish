@@ -75,6 +75,10 @@ h1, h2 { font-weight: 400; }
 .ticket-details dd { font: 11px/1.6 var(--sans); letter-spacing: 1px; margin: 0; }
 .voucher-note { margin-top: 27px; font-size: 17px; line-height: 1.7; }
 .voucher-note span { color: var(--muted); font-size: 14px; }
+/* Fine print: generous spacing, small type, and natural wrapping on phones. */
+.voucher-terms { margin-top: 26px; color: var(--muted); }
+.voucher-terms h3 { margin: 0 0 10px; font: 400 8px/1.7 var(--sans); letter-spacing: 1.6px; }
+.voucher-terms p { margin: 0; font: 11px/1.9 var(--serif); overflow-wrap: break-word; }
 .ticket-stub { position: relative; border-top: 1px dashed #cdbda8; padding: 19px 40px 16px; }
 /* Circular cutouts sit on the perforation, like a physical ticket. */
 .ticket-stub::before, .ticket-stub::after { content: ''; position: absolute; top: -9px; width: 16px; height: 16px; border: 1px solid var(--line); border-radius: 50%; background: var(--ivory); }
@@ -144,4 +148,74 @@ h1, h2 { font-weight: 400; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .envelope:not(.is-open):hover, .voucher:hover, .keep-button:not(:disabled):hover { transform: none; }
+}
+
+/* Temporary margin note: no button, border, or pointer interception. */
+.voucher-group { position: relative; }
+.heart-hint {
+  position: fixed;
+  right: max(28px, env(safe-area-inset-right));
+  bottom: max(24px, env(safe-area-inset-bottom));
+  max-width: 200px;
+  margin: 0;
+  color: var(--muted);
+  font: italic 12px/1.7 var(--serif);
+  text-align: right;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 600ms ease;
+}
+.heart-hint.is-visible { opacity: .8; }
+/* Below the button on smaller screens, without moving existing content. */
+@media (max-width: 1000px) {
+  .heart-hint {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    bottom: auto;
+    max-width: 100%;
+    width: 100%;
+    font-size: 11px;
+    line-height: 1.5;
+    text-align: center;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .heart-hint { transition: none; }
+}
+
+/* A transparent 44px tap target straddles the existing perforation. */
+.stub-slot { position: relative; transition: height 400ms var(--ease); }
+.ticket-stub { border-top-color: transparent; background: var(--paper); border-radius: 0 0 6px 6px; transform-origin: 12% 0; }
+.tear-line {
+  position: absolute; z-index: 2; left: 10px; right: 10px; top: -22px;
+  height: 44px; padding: 0; border: 0; background: transparent;
+  touch-action: manipulation;
+}
+.tear-line::after {
+  content: ''; position: absolute; left: 0; right: 0; top: 22px;
+  border-top: 1px dashed #cdbda8; transition: border-color 300ms ease;
+}
+.tear-line:focus-visible { outline-offset: -5px; border-radius: 3px; }
+@media (hover: hover) {
+  .tear-line:not(:disabled):hover::after { border-color: var(--gold); }
+}
+.tear-line:focus-visible::after { border-color: var(--gold); }
+.ticket-stub.is-tearing { animation: tear-stub 800ms var(--ease) both; pointer-events: none; }
+@keyframes tear-stub {
+  0% { transform: translateY(0) rotate(0); opacity: 1; }
+  30% { transform: translateY(3px) rotate(1deg); opacity: 1; }
+  65% { transform: translateY(14px) rotate(2.5deg); opacity: .85; }
+  100% { transform: translateY(30px) rotate(4deg); opacity: 0; }
+}
+.tear-confirmation {
+  position: absolute; z-index: 3; top: -12px; left: 50%; transform: translateX(-50%);
+  margin: 0; padding: 2px 12px; background: var(--paper); color: var(--muted);
+  font: italic 12px/1.6 var(--serif); white-space: nowrap;
+  opacity: 0; transition: opacity 350ms ease; pointer-events: none;
+}
+.tear-confirmation.is-visible { opacity: .85; }
+@media (prefers-reduced-motion: reduce) {
+  .stub-slot, .tear-line::after, .tear-confirmation { transition: none; }
+  .ticket-stub.is-tearing { animation: none; }
 }

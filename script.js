@@ -13,6 +13,7 @@ let currentScreen = opening;
 // One visible screen at a time. Focus follows the new heading for keyboard users.
 async function showScreen(nextScreen, headingId) {
   const previousScreen = currentScreen;
+  if (previousScreen === voucherScreen) dismissHeartHint();
   previousScreen.inert = true;
   previousScreen.classList.add('leaving');
   await pause(motionTime(500));
@@ -32,6 +33,7 @@ get('open-button').addEventListener('click', async () => {
   get('envelope').classList.add('is-open');
   await pause(motionTime(900));
   await showScreen(voucherScreen, 'voucher-title');
+  scheduleHeartHint();
 });
 
 // Intl understands both time zones and New York's daylight-saving changes.
@@ -71,7 +73,8 @@ document.addEventListener('visibilitychange', () => {
 // The third heart click reveals the secret. Closing resets the count.
 let heartClicks = 0;
 const heart = get('secret-heart');
-heart.addEventListener('click', () => {
+heart.addEventListener('click', (event) => {
+  event.stopPropagation(); // The secret heart never triggers a tear.
   heartClicks += 1;
   heart.classList.remove('pulse-one', 'pulse-two');
   if (heartClicks < 3) {
@@ -105,4 +108,69 @@ get('keep-button').addEventListener('click', async () => {
   get('redeem-message').classList.add('visible');
   await pause(3600);
   await showScreen(finalScreen, 'final-title');
+});
+
+// Independent hint timing; the existing three-click secret is unchanged.
+const heartHint = get('heart-hint');
+let hintScheduled = false;
+let hintCancelled = false;
+let hintTimer;
+
+function dismissHeartHint() {
+  hintCancelled = true;
+  window.clearTimeout(hintTimer);
+  heartHint.classList.remove('is-visible');
+  heartHint.setAttribute('aria-hidden', 'true');
+}
+
+async function scheduleHeartHint() {
+  if (hintScheduled) return;
+  hintScheduled = true;
+  // Wait for the actual entrance animation; reduced motion has no animation.
+  await Promise.all(voucherScreen.getAnimations().map((animation) =>
+    animation.finished.catch(() => {})
+  ));
+  if (hintCancelled) return;
+  hintTimer = window.setTimeout(() => {
+    if (hintCancelled || currentScreen !== voucherScreen) return;
+    heartHint.setAttribute('aria-hidden', 'false');
+    heartHint.classList.add('is-visible');
+    // Allow the fade-in, then keep the text visible for 4.5 seconds.
+    hintTimer = window.setTimeout(dismissHeartHint, motionTime(600) + 4500);
+  }, 4000);
+}
+
+// One tear per visit. Only the separate perforation button starts this sequence.
+const tearLine = get('tear-line');
+const ticketStub = get('ticket-stub');
+const stubSlot = get('stub-slot');
+const tearConfirmation = get('tear-confirmation');
+let stubTorn = false;
+
+tearLine.addEventListener('click', async () => {
+  if (stubTorn) return;
+  stubTorn = true;
+  tearLine.disabled = true;
+  heart.disabled = true;
+  ticketStub.inert = true;
+  dismissHeartHint(); // A hint about the removed heart would no longer be useful.
+  stubSlot.style.height = `${stubSlot.getBoundingClientRect().height}px`;
+  ticketStub.classList.add('is-tearing');
+  await pause(motionTime(800));
+  ticketStub.hidden = true;
+  tearLine.hidden = true;
+  stubSlot.style.height = '0px';
+  // Move focus off the disappearing control, without interrupting another action.
+  if (currentScreen === voucherScreen && !voucherScreen.inert &&
+      (document.activeElement === tearLine || document.activeElement === document.body)) {
+    get('keep-button').focus({ preventScroll: true });
+  }
+  await pause(motionTime(400));
+  if (currentScreen !== voucherScreen || voucherScreen.inert) return;
+  tearConfirmation.textContent = 'Got it. ♡';
+  tearConfirmation.classList.add('is-visible');
+  await pause(1800);
+  tearConfirmation.classList.remove('is-visible');
+  await pause(motionTime(350));
+  tearConfirmation.textContent = '';
 });
