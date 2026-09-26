@@ -30,10 +30,19 @@
 
     <!-- 2. Voucher: clocks use actual IANA time zones, including daylight saving. -->
     <section class="screen voucher-screen" id="voucher-screen" aria-labelledby="voucher-title" hidden>
-      <aside class="clocks" aria-label="Current local times in China and New York">
-        <div><span>CHINA</span><time id="china-time">--:--</time></div>
-        <p id="time-apart">12 HOURS APART</p>
-        <div><span>NEW YORK</span><time id="new-york-time">--:--</time></div>
+      <aside class="clocks" aria-label="Our locations and current local times">
+        <div class="location-clock">
+          <span class="location-label">ME</span>
+          <span>JINAN</span>
+          <span class="coordinates">36.67° N · 117.02° E</span>
+          <time id="china-time">--:--</time>
+        </div>
+        <div class="location-clock">
+          <span class="location-label">YOU</span>
+          <span id="your-city">NEW YORK</span>
+          <span class="coordinates" id="your-coordinates">40.71° N · 74.01° W</span>
+          <time id="your-time">--:--</time>
+        </div>
       </aside>
       <div class="voucher-group" id="voucher-group">
         <article class="voucher">

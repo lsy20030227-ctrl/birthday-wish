@@ -33,39 +33,89 @@ get('open-button').addEventListener('click', async () => {
   get('envelope').classList.add('is-open');
   await pause(motionTime(900));
   await showScreen(voucherScreen, 'voucher-title');
+  requestVisitorLocation();
   scheduleHeartHint();
 });
 
-// Intl understands both time zones and New York's daylight-saving changes.
-const chinaClock = new Intl.DateTimeFormat('en-US', {
-  timeZone: 'Asia/Shanghai', hour: '2-digit', minute: '2-digit', hour12: true
+// Jinan is fixed. The visitor's coordinates require browser permission.
+const createClock = (timeZone) => new Intl.DateTimeFormat('en-US', {
+  timeZone, hour: '2-digit', minute: '2-digit', hour12: true
 });
-const newYorkClock = new Intl.DateTimeFormat('en-US', {
-  timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: true
-});
-const offsetClock = (timeZone) => new Intl.DateTimeFormat('en-US', {
-  timeZone, timeZoneName: 'shortOffset'
-});
-const chinaOffset = offsetClock('Asia/Shanghai');
-const newYorkOffset = offsetClock('America/New_York');
-function offsetHours(formatter, date) {
-  const zone = formatter.formatToParts(date).find((part) => part.type === 'timeZoneName').value;
-  const match = zone.match(/GMT([+-])(\d{1,2})(?::(\d{2}))?/);
-  if (!match) return 0;
-  return (match[1] === '+' ? 1 : -1) * (Number(match[2]) + Number(match[3] || 0) / 60);
-}
+const chinaClock = createClock('Asia/Shanghai');
+let visitorClock = createClock('America/New_York');
+let locationRequested = false;
+
 function updateClocks() {
   const now = new Date();
   get('china-time').textContent = chinaClock.format(now);
-  get('new-york-time').textContent = newYorkClock.format(now);
+  get('your-time').textContent = visitorClock.format(now);
   get('china-time').dateTime = now.toISOString();
-  get('new-york-time').dateTime = now.toISOString();
-  const hoursApart = Math.abs(offsetHours(chinaOffset, now) - offsetHours(newYorkOffset, now));
-  get('time-apart').textContent = `${hoursApart} HOURS APART`;
+  get('your-time').dateTime = now.toISOString();
+}
+
+function useNewYorkFallback() {
+  visitorClock = createClock('America/New_York');
+  get('your-city').hidden = false;
+  get('your-coordinates').textContent = '40.71° N · 74.01° W';
+  updateClocks();
+}
+
+function formatCoordinates(latitude, longitude) {
+  return `${Math.abs(latitude).toFixed(2)}° ${latitude < 0 ? 'S' : 'N'} · ` +
+    `${Math.abs(longitude).toFixed(2)}° ${longitude < 0 ? 'W' : 'E'}`;
+}
+
+async function showVisitorLocation(position) {
+  const { latitude, longitude } = position.coords;
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude) ||
+      Math.abs(latitude) > 90 || Math.abs(longitude) > 180) {
+    useNewYorkFallback();
+    return;
+  }
+  // Geolocation supplies coordinates, not a time zone. Open-Meteo resolves
+  // those coordinates to an IANA zone; no address lookup or location storage.
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 8000);
+  try {
+    const url = new URL('https://api.open-meteo.com/v1/forecast');
+    url.searchParams.set('latitude', latitude);
+    url.searchParams.set('longitude', longitude);
+    url.searchParams.set('timezone', 'auto');
+    url.searchParams.set('forecast_days', '1');
+    const response = await fetch(url, { signal: controller.signal, credentials: 'omit' });
+    if (!response.ok) throw new Error('Time zone lookup unavailable');
+    const data = await response.json();
+    if (typeof data.timezone !== 'string' || !data.timezone) throw new Error('Missing time zone');
+    // Validate the returned zone before changing any visible location details.
+    const clock = createClock(data.timezone);
+    visitorClock = clock;
+    get('your-city').hidden = true;
+    get('your-coordinates').textContent = formatCoordinates(latitude, longitude);
+    updateClocks();
+  } catch (error) {
+    useNewYorkFallback();
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
+function requestVisitorLocation() {
+  if (locationRequested) return;
+  locationRequested = true;
+  if (!navigator.geolocation) {
+    useNewYorkFallback();
+    return;
+  }
+  try {
+    navigator.geolocation.getCurrentPosition(showVisitorLocation, useNewYorkFallback, {
+      enableHighAccuracy: false, timeout: 10000, maximumAge: 0
+    });
+  } catch (error) {
+    useNewYorkFallback();
+  }
 }
 updateClocks();
 window.setInterval(updateClocks, 1000);
-// Refresh immediately when returning to a tab that was asleep.
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) updateClocks();
 });

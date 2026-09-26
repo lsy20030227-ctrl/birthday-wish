@@ -55,10 +55,18 @@ h1, h2 { font-weight: 400; }
 .envelope.is-open .envelope-letter { transform: translateY(-70px); }
 
 /* LIVE CLOCKS — a quiet margin note on desktop, above the ticket on mobile. */
-.clocks { position: absolute; top: 34px; right: 38px; width: 169px; color: var(--muted); font: 9px/1.6 var(--sans); letter-spacing: 1px; }
-.clocks div { display: flex; justify-content: space-between; gap: 18px; }
+.clocks { position: absolute; top: 34px; right: 38px; width: 180px; color: var(--muted); font: 9px/1.7 var(--sans); letter-spacing: .8px; text-align: left; }
+.clocks .location-clock { display: grid; gap: 4px; }
+.clocks .location-clock + .location-clock { margin-top: 19px; }
+.clocks .location-label { font-size: 8px; letter-spacing: 1.7px; color: #8b7353; margin-bottom: 2px; }
+.clocks .coordinates { letter-spacing: .2px; }
 .clocks time { font-variant-numeric: tabular-nums; letter-spacing: .6px; }
-.clocks p { text-align: center; margin: 6px 0; font-size: 8px; letter-spacing: 1.7px; color: #8b7353; }
+/* Keep the taller location notes clear of the voucher on smaller screens. */
+@media (max-width: 1000px) {
+  .clocks { position: static; width: min(100%, 360px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 30px; }
+  .clocks .location-clock { align-content: start; }
+  .clocks .location-clock + .location-clock { margin-top: 0; }
+}
 .voucher-screen { padding-top: 125px; padding-bottom: 56px; }
 .voucher-group { width: min(100%, 524px); }
 .voucher { position: relative; text-align: left; background: var(--paper); border: 1px solid var(--line); border-radius: 7px; box-shadow: 0 18px 45px #4d3d2910, 0 2px 5px #4d3d2905; transition: transform 650ms var(--ease), box-shadow 650ms ease; }
@@ -131,7 +139,7 @@ h1, h2 { font-weight: 400; }
   .screen { padding-left: 22px; padding-right: 22px; }
   .opening { gap: 54px; }
   .opening h1 { max-width: 320px; }
-  .clocks { position: static; width: 160px; margin-bottom: 30px; }
+  .clocks { font-size: 8px; }
   .voucher-screen { padding-top: 30px; padding-bottom: 36px; }
   .voucher-body { padding: 24px 25px 26px; }
   .voucher-header .label { font-size: 8px; letter-spacing: 1.5px; }
